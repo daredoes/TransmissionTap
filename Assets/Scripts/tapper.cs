@@ -62,10 +62,11 @@ namespace Tapper
         }
 
         public void toggleRecording(){
+            Material new_color = GetComponent<MeshRenderer>().material;
             if (isRecording)
             {
                 isRecording = false;
-                Material new_color = GetComponent<Material>();
+
                 new_color.color = UnityEngine.Color.red;
 
                 previousTaps.Add(new Tap(taps, m_lastFramerate));
@@ -78,19 +79,21 @@ namespace Tapper
             }
             else{
                 isRecording = true;
-                Material new_color = GetComponent<Material>();
+
                 new_color.color = UnityEngine.Color.white;
             }
+            GetComponent<MeshRenderer>().material = new_color;
             
         }
 
         public void vibrateLastTap()
         {
-            if (playingTap == null || playingTap != previousTaps[previousTaps.Count - 1])
-            {
-                
-                playingTap = previousTaps[previousTaps.Count - 1];
+            if (playingTap == null){
+                if (playingTap != previousTaps[previousTaps.Count - 1])
+                {
 
+                    playingTap = previousTaps[previousTaps.Count - 1];
+                }
             }
             playingIndex = 0;
             StartCoroutine(VibratePattern());
@@ -111,9 +114,10 @@ namespace Tapper
             {
                 
                 if(!wait){
-                    Debug.Log("Sent vibration");
+                    
                     Vibration.Vibrate(duration);
                 }
+                Debug.Log(wait);
                 yield return new WaitForSeconds(duration / 1000f);
             }
         }
