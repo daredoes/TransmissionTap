@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityStandardAssets.CrossPlatformInput;
+//using UnityStandardAssets.CrossPlatformInput;
 using UnityEngine.EventSystems;
 
 namespace Tapper
@@ -65,8 +65,8 @@ namespace Tapper
             if (isRecording)
             {
                 isRecording = false;
-                Image background = GetComponent<Image>();
-                background.color = UnityEngine.Color.red;
+                Material new_color = GetComponent<Material>();
+                new_color.color = UnityEngine.Color.red;
 
                 previousTaps.Add(new Tap(taps, m_lastFramerate));
                 m_frameCounter = 0;
@@ -78,6 +78,8 @@ namespace Tapper
             }
             else{
                 isRecording = true;
+                Material new_color = GetComponent<Material>();
+                new_color.color = UnityEngine.Color.white;
             }
             
         }
@@ -86,27 +88,34 @@ namespace Tapper
         {
             if (playingTap == null || playingTap != previousTaps[previousTaps.Count - 1])
             {
+                
                 playingTap = previousTaps[previousTaps.Count - 1];
 
             }
             playingIndex = 0;
             StartCoroutine(VibratePattern());
         }
+        public void replayLastTap(){
+            if (playingTap == null || playingTap != previousTaps[previousTaps.Count - 1])
+            {
+                playingTap = previousTaps[previousTaps.Count - 1];
+
+            }
+            playingIndex = 0;
+        }
 
         IEnumerator VibratePattern()
         {
-#if UNITY_ANDROID
             bool wait = playingTap.FirstDigit == 1 ? false : true;
             foreach (long duration in playingTap.VibrationPattern)
             {
+                
                 if(!wait){
-                    Tap.Vibrate(duration);
+                    Debug.Log("Sent vibration");
+                    Vibration.Vibrate(duration);
                 }
                 yield return new WaitForSeconds(duration / 1000f);
             }
-#else
-            yield return new WaitForEndOfFrame();
-#endif
         }
 
 
@@ -115,6 +124,7 @@ namespace Tapper
         // Update is called once per frame
         void Update()
         {
+            Material new_color = GetComponent<MeshRenderer>().material;
             for (int i = 0; i < Input.touchCount; ++i)
             {
                 if (Input.GetTouch(i).phase == TouchPhase.Began)
@@ -126,26 +136,30 @@ namespace Tapper
                     if (Physics.Raycast(ray))
                     {
                         isPressing = 1;
-                        Image background = GetComponent<Image>();
-                        background.color = UnityEngine.Color.grey;
+
+                        new_color.color = UnityEngine.Color.grey;
                         isRecording = true;
                     }
                 }
                 if( Input.GetTouch(i).phase == TouchPhase.Ended){
                     isPressing = 0;
-                    Image background = GetComponent<Image>();
-                    background.color = UnityEngine.Color.white;
+
+                    new_color.color = UnityEngine.Color.white;
                 }
 
             }
 
             if (Input.GetMouseButtonDown(0))
             {
-                if(EventSystem.current.IsPointerOverGameObject())
+                Debug.Log("Click");
+                // Construct a ray from the current touch coordinates
+                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                // Create a particle if hit
+                if (Physics.Raycast(ray))
                 {
+                    Debug.Log("Clicked");
                     isPressing = 1;
-                    Image background = GetComponent<Image>();
-                    background.color = UnityEngine.Color.grey;
+                    new_color.color = UnityEngine.Color.grey;
                     isRecording = true;
                 }
 
@@ -153,11 +167,13 @@ namespace Tapper
             }
             if (Input.GetMouseButtonUp(0))
             {
-                if (EventSystem.current.IsPointerOverGameObject())
+                // Construct a ray from the current touch coordinates
+                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                // Create a particle if hit
+                if (Physics.Raycast(ray))
                 {
                     isPressing = 0;
-                    Image background = GetComponent<Image>();
-                    background.color = UnityEngine.Color.white;
+                    new_color.color = UnityEngine.Color.white;
                 }
             }
             if (isRecording)
@@ -176,7 +192,7 @@ namespace Tapper
                     m_timeCounter = 0.0f;
                 }
             }
-            if (CrossPlatformInputManager.GetButtonDown("Jump"))
+            /*if (CrossPlatformInputManager.GetButtonDown("Jump"))
             {
                 isRecording = true;
             }
@@ -206,24 +222,26 @@ namespace Tapper
                 playingIndex = 0;
 
             }
-            Image panelBg = GetComponent<Image>();
+*/
+
+
             if(playingTap != null && playingIndex < playingTap.Pattern.Count && playingIndex >= 0){
 
                 if (playingTap.Pattern[playingIndex++] == 0)
                 {
-                    panelBg.color = UnityEngine.Color.green;
+                    new_color.color = Color.green;
                 }
                 else
                 {
-                    panelBg.color = UnityEngine.Color.blue;
+                    new_color.color = Color.blue;
 
                 }
             }
             else if(!isRecording){
                 playingIndex = -1;
-                panelBg.color = UnityEngine.Color.red;
+                new_color.color = Color.red;
             }
-            panelBg.transform.SetAsLastSibling();
+            GetComponent<MeshRenderer>().material = new_color;
         }
     }
 }
