@@ -32,14 +32,14 @@ namespace Tapper
 
         }
 
-        ArrayList trimTaps(ArrayList trimTheseTaps)
+        List<int> trimTaps(List<int> trimTheseTaps)
         {
             int firstOneIndex = -1;
             int lastOneIndex = -1;
-            ArrayList newTaps = new ArrayList();
+            List<int> newTaps = new List<int>();
             for (int i = 0; i < trimTheseTaps.Count; i++)
             {
-                if (firstOneIndex < 0 && (int)trimTheseTaps[i] == 1)
+                if (firstOneIndex < 0 && trimTheseTaps[i] == 1)
                 {
                     firstOneIndex = i;
                 }
@@ -47,7 +47,7 @@ namespace Tapper
                 {
                     newTaps.Add(trimTheseTaps[i]);
                 }
-                if ((int)trimTheseTaps[i] == 1)
+                if (trimTheseTaps[i] == 1)
                 {
                     lastOneIndex = newTaps.Count;
                 }
@@ -69,7 +69,7 @@ namespace Tapper
 
                 new_color.color = UnityEngine.Color.red;
 
-                previousTaps.Add(new Tap(taps, m_lastFramerate));
+                previousTaps.Add(new Tap(trimTaps( taps), m_lastFramerate));
                 m_frameCounter = 0;
                 m_timeCounter = 0.0f;
                 m_lastFramerate = 0.0f;
